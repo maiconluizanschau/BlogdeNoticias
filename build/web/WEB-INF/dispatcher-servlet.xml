@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!-- was: <?xml version="1.0" encoding="UTF-8"?> -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    
+    <!--
+    <bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/>
+-->
+    <!--
+    Most controllers will use the ControllerClassNameHandlerMapping above, but
+    for the index controller we are using ParameterizableViewController, so we must
+    define an explicit mapping for it.
+    -->
+     <context:component-scan base-package="br.ufsm.csi.maicon.trabalho.programacaob.sistemajornal"/>
+     <!--
+    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <props>
+                <prop key="index.htm">indexController</prop>
+            </props>
+        </property>
+    </bean>
+-->
+<!--
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+          p:prefix="/WEB-INF/jsp/"
+          p:suffix=".jsp" />
+-->
+    <!--
+    The index controller.
+    -->
+   <!-- 
+    <bean name="indexController"
+          class="org.springframework.web.servlet.mvc.ParameterizableViewController"
+          p:viewName="index" />
+-->
+   <!--
+    
+     <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/WEB-INF/jsp/"/>
+            <bean class="br.ufsm.csi.maicon.trabalho.programacaob.sistemajornal.controller.AutenticacaoInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+    
+    <bean id="dataSource" class="org.postgresql.jdbc2.optional.ConnectionPool" destroy-method="close">
+        <property name="url" value="jdbc:postgresql://localhost:5432/traballhoprogramacaob"/>
+        <property name="driverClassName" value="org.postgresql.Driver"/>
+        <property name="username" value="postgres"/>
+        <property name="password" value="fr27sa03t5"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="initialSize" value="1"/>
+      
+        <property name="maxActive" value="5"/>
+        -->
+<mvc:annotation-driven />
+
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- Segurança Spring -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/WEB-INF/jsp/"/>
+            <bean class="br.ufsm.csi.maicon.trabalho.programacaob.sistemajornal.controller.AutenticacaoInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+            <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+            <property name="url" value="jdbc:mysql://localhost:3306/programacaob"/>
+            <property name="username" value="root"/>
+            <property name="password" value=""/>
+    </bean> -->
+    <context:component-scan base-package="br.ufsm.csi.maicon.trabalho.programacaob.sistemajornal.controller" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- Conexão -->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="url" value="jdbc:mysql://localhost:3306/programacaob"/>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
+    </bean>
+
+    <!--
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+          p:driverClassName="com.mysql.jdbc.Driver" p:url="jdbc:mysql://localhost:3306/programacaob"
+          p:username="root" p:password="" />
+    -->
+
+    <!-- Hibernate -->
+    <!--  Session Factory -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:hibernate.cfg.xml" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop> <!-- Define que é Mysql -->
+                <prop key="hibernate.show_sql">true</prop> <!-- É como um debug do hibernate, mostra o sql -->
+                <prop key="hibernate.format_sql">true</prop> <!-- Formata o código sql do debug -->
+                <prop key="hibernate.hbm2ddl">update</prop> <!-- Ao iniciar o hibernate, ele atualiza automaticamente as colunas, tabelas -->
+            </props>
+        </property>
+    </bean>
+
+    <!--  Gerenciador de transações -->
+    <tx:annotation-driven />
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+</beans>
